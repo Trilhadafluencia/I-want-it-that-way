@@ -1,457 +1,514 @@
-import React, { useState, useEffect } from 'react';
-import { 
-  Coffee, BookOpen, Headphones, Mic, MessageCircle, 
-  Check, Volume2, Play
-} from 'lucide-react';
-
-export default function App() {
-  const [activeTab, setActiveTab] = useState('warm-up');
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Trilha da Fluência - Music Class</title>
   
-  // --- STATE: VOCABULARY MATCHING GAME ---
-  const [selectedWord, setSelectedWord] = useState(null);
-  const [matchedPairs, setMatchedPairs] = useState({}); 
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
   
-  const vocabData = [
-    { en: 'Fire', pt: 'Fogo' },
-    { en: 'Desire', pt: 'Desejo' },
-    { en: 'Believe', pt: 'Acreditar' },
-    { en: 'Heart', pt: 'Coração' },
-    { en: 'Mistake', pt: 'Erro / Engano' },
-    { en: 'Hear', pt: 'Ouvir' },
-    { en: 'Wanna', pt: 'Querer' }
-  ];
-
-  const [shuffledEnWords, setShuffledEnWords] = useState([]);
+  <!-- React & ReactDOM -->
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
   
-  useEffect(() => {
-    const shuffled = [...vocabData].sort(() => Math.random() - 0.5);
-    setShuffledEnWords(shuffled.map(item => item.en));
-  }, []);
+  <!-- Babel for JSX -->
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 
-  const handleEnWordClick = (word) => {
-    if (Object.values(matchedPairs).includes(word)) return;
-    setSelectedWord(word === selectedWord ? null : word);
-  };
+  <style>
+    /* Ocultar barra de scroll mantendo a funcionalidade */
+    .hide-scrollbar::-webkit-scrollbar { display: none; }
+    .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    body { background-color: #eef5f9; }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
 
-  const handlePtBoxClick = (ptTranslation) => {
-    if (!selectedWord || matchedPairs[ptTranslation]) return;
+  <script type="text/babel">
+    const { useState, useEffect } = React;
 
-    const correctPair = vocabData.find(item => item.en === selectedWord && item.pt === ptTranslation);
-    
-    if (correctPair) {
-      setMatchedPairs(prev => ({ ...prev, [ptTranslation]: selectedWord }));
-      setSelectedWord(null); 
-    } else {
-      setSelectedWord(null); 
-    }
-  };
+    // --- ÍCONES INLINE (Substituindo lucide-react para funcionar sem Node.js) ---
+    const Coffee = ({ size = 24, className = "", fill = "none" }) => (
+      <svg width={size} height={size} viewBox="0 0 24 24" fill={fill} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M18 8h1a4 4 0 0 1 0 8h-1"/><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"/><line x1="6" y1="1" x2="6" y2="4"/><line x1="10" y1="1" x2="10" y2="4"/><line x1="14" y1="1" x2="14" y2="4"/></svg>
+    );
+    const BookOpen = ({ size = 24, className = "" }) => (
+      <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+    );
+    const Headphones = ({ size = 24, className = "" }) => (
+      <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M3 18v-6a9 9 0 0 1 18 0v6"/><path d="M21 19a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3zM3 19a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2H3z"/></svg>
+    );
+    const Mic = ({ size = 24, className = "" }) => (
+      <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" x2="12" y1="19" y2="22"/><line x1="8" x2="16" y1="22" y2="22"/></svg>
+    );
+    const MessageCircle = ({ size = 24, className = "", fill = "none" }) => (
+      <svg width={size} height={size} viewBox="0 0 24 24" fill={fill} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"/></svg>
+    );
+    const Check = ({ size = 24, className = "" }) => (
+      <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><polyline points="20 6 9 17 4 12"/></svg>
+    );
+    const Volume2 = ({ size = 24, className = "" }) => (
+      <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/></svg>
+    );
+    const Play = ({ size = 24, className = "", fill = "none" }) => (
+      <svg width={size} height={size} viewBox="0 0 24 24" fill={fill} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><polygon points="5 3 19 12 5 21 5 3"/></svg>
+    );
 
-  // --- STATE: LISTENING EXERCISES ---
-  const [act1Answers, setAct1Answers] = useState({ q1: '', q2: '', q3: '', q4: '', q5: '', q6: '', q7: '', q8: '', q9: '' });
-  const [act2Answers, setAct2Answers] = useState({ l1: '', l2: '', l3: '', l4: '', l5: '' });
-  const [act3Answers, setAct3Answers] = useState({ c1: '', c2: '', c3: '', c4: '' });
-  const [showListeningResults, setShowListeningResults] = useState(false);
-
-  const act1Keys = { q1: 'fire', q2: 'desire', q3: 'way', q4: 'worlds', q5: 'heart', q6: 'why', q7: 'heartache', q8: 'mistake', q9: 'say' };
-  const act2Keys = { l1: '3', l2: '1', l3: '4', l4: '5', l5: '2' };
-  const act3Keys = { c1: ['nothin', 'nothing', "nothin'"], c2: ['mistake'], c3: ['hear'], c4: ['way'] };
-
-  const act2Lines = [
-    { id: 'l1', text: "Tell me why" },
-    { id: 'l2', text: "You are my fire" },
-    { id: 'l3', text: "Ain't nothin' but a heartache" },
-    { id: 'l4', text: "I want it that way" },
-    { id: 'l5', text: "The one desire" }
-  ];
-
-  const handleAct1Change = (q, val) => setAct1Answers(prev => ({ ...prev, [q]: val }));
-  const handleAct2Change = (q, val) => setAct2Answers(prev => ({ ...prev, [q]: val }));
-  const handleAct3Change = (q, val) => setAct3Answers(prev => ({ ...prev, [q]: val }));
-
-  const checkAct1 = (q) => act1Answers[q].toLowerCase().trim() === act1Keys[q];
-  const checkAct2 = (l) => act2Answers[l] === act2Keys[l];
-  const checkAct3 = (c) => act3Keys[c].includes(act3Answers[c].toLowerCase().trim().replace(/[']/g, ''));
-
-  // --- AUDIO TTS FOR SPEAKING ---
-  const [speakingId, setSpeakingId] = useState(null);
-  const playAudio = (id, text) => {
-    if (!('speechSynthesis' in window)) return;
-    window.speechSynthesis.cancel();
-    if (speakingId === id) {
-      setSpeakingId(null);
-      return;
-    }
-    const utterance = new SpeechSynthesisUtterance(text);
-    utterance.lang = 'en-US';
-    utterance.rate = 0.8; 
-    utterance.onend = () => setSpeakingId(null);
-    utterance.onerror = () => setSpeakingId(null);
-    setSpeakingId(id);
-    window.speechSynthesis.speak(utterance);
-  };
-
-  // TABS NAVIGATION
-  const tabs = [
-    { id: 'warm-up', label: 'Warm-up', icon: Coffee },
-    { id: 'vocab', label: 'Vocabulário', icon: BookOpen },
-    { id: 'listening', label: 'Listening', icon: Headphones },
-    { id: 'speaking', label: 'Speaking', icon: Mic }
-  ];
-
-  // FULL LYRICS DATA
-  const songLyrics = [
-    { id: 's1', label: 'Verse 1', text: "Yeah\nYou are my fire\nThe one desire\nBelieve when I say\nI want it that way" },
-    { id: 's2', label: 'Verse 2', text: "But we are two worlds apart\nCan't reach to your heart\nWhen you say\nThat I want it that way" },
-    { id: 's3', label: 'Chorus', text: "Tell me why\nAin't nothin' but a heartache\nTell me why\nAin't nothin' but a mistake\nTell me why\nI never wanna hear you say\nI want it that way" },
-    { id: 's4', label: 'Verse 3', text: "Am I your fire?\nYour one desire?\nYes, I know it's too late\nBut I want it that way" },
-    { id: 's5', label: 'Chorus', text: "Tell me why\nAin't nothin' but a heartache\nTell me why\nAin't nothin' but a mistake\nTell me why\nI never wanna hear you say\nI want it that way" },
-    { id: 's6', label: 'Bridge', text: "Now, I can see that we've fallen apart\nFrom the way that it used to be, yeah\nNo matter the distance\nI want you to know\nThat deep down inside of me" },
-    { id: 's7', label: 'Verse 4', text: "You are my fire\nThe one desire\nYou are (you are, you are, you are)\nDon't wanna hear you say, yeah" },
-    { id: 's8', label: 'Chorus (Variation)', text: "Ain't nothin' but a heartache\nAin't nothin' but a mistake (don't wanna hear you say)\nI never wanna hear you say (oh, yeah)\nI want it that way" },
-    { id: 's9', label: 'Chorus', text: "Tell me why\nAin't nothin' but a heartache\nTell me why\nAin't nothin' but a mistake\nTell me why\nI never wanna hear you say (don't wanna hear you say)\nI want it that way" },
-    { id: 's10', label: 'Outro', text: "Tell me why\nAin't nothin' but a heartache\nAin't nothin' but a mistake\nTell me why\nI never wanna hear you say (never wanna hear you say, yeah)\nI want it that way\n'Cause I want it that way" },
-  ];
-
-  return (
-    <div className="min-h-screen bg-[#eef5f9] font-sans text-[#0a2742] selection:bg-[#a8c4dc] selection:text-[#0a2742] pb-24 pt-16">
+    // --- MAIN APP COMPONENT ---
+    function App() {
+      const [activeTab, setActiveTab] = useState('warm-up');
       
-      {/* HEADER */}
-      <div className="max-w-4xl mx-auto px-4 text-center mb-10">
-        <h1 className="text-2xl md:text-3xl text-[#0a2742] font-serif font-bold mb-4 opacity-90">
-          Trilha da fluência - Music class
-        </h1>
-        <div className="flex items-center justify-center gap-4 flex-wrap">
-          <h2 className="text-[#a61e00] font-bold text-lg md:text-xl">
-            I Want It That Way by Backstreet Boys
-          </h2>
-          <span className="bg-[#0a2742] text-white text-xs font-bold px-3 py-1 rounded-full">
-            Level: A1
-          </span>
-        </div>
-      </div>
+      // --- STATE: VOCABULARY MATCHING GAME ---
+      const [selectedWord, setSelectedWord] = useState(null);
+      const [matchedPairs, setMatchedPairs] = useState({}); 
+      
+      const vocabData = [
+        { en: 'Fire', pt: 'Fogo' },
+        { en: 'Desire', pt: 'Desejo' },
+        { en: 'Believe', pt: 'Acreditar' },
+        { en: 'Heart', pt: 'Coração' },
+        { en: 'Mistake', pt: 'Erro / Engano' },
+        { en: 'Hear', pt: 'Ouvir' },
+        { en: 'Wanna', pt: 'Querer' }
+      ];
 
-      {/* TABS COMPONENT */}
-      <div className="max-w-4xl mx-auto px-4 mb-8">
-        <div className="flex items-center gap-6 border-b border-[#a8c4dc]/50 overflow-x-auto hide-scrollbar">
-          {tabs.map(tab => {
-            const Icon = tab.icon;
-            const isActive = activeTab === tab.id;
-            return (
-              <button
-                key={tab.id}
-                onClick={() => setActiveTab(tab.id)}
-                className={`flex items-center gap-2 pb-3 px-2 font-bold transition-all relative whitespace-nowrap text-sm md:text-base ${
-                  isActive 
-                    ? 'text-[#0a2742]' 
-                    : 'text-[#0a2742]/50 hover:text-[#0a2742]/80'
-                }`}
-              >
-                <Icon size={18} className={isActive ? 'text-[#0a2742]' : ''} />
-                {tab.label}
-                {isActive && (
-                  <div className="absolute bottom-0 left-0 w-full h-[3px] bg-[#e2b07e]"></div>
-                )}
-              </button>
-            );
-          })}
-        </div>
-      </div>
+      const [shuffledEnWords, setShuffledEnWords] = useState([]);
+      
+      useEffect(() => {
+        const shuffled = [...vocabData].sort(() => Math.random() - 0.5);
+        setShuffledEnWords(shuffled.map(item => item.en));
+      }, []);
 
-      {/* CONTENT AREA */}
-      <div className="max-w-4xl mx-auto px-4">
-        <div className="bg-white rounded-xl border-t-[6px] border-[#e2b07e] p-8 md:p-12 shadow-[0_4px_20px_-5px_rgba(10,39,66,0.05)]">
+      const handleEnWordClick = (word) => {
+        if (Object.values(matchedPairs).includes(word)) return;
+        setSelectedWord(word === selectedWord ? null : word);
+      };
+
+      const handlePtBoxClick = (ptTranslation) => {
+        if (!selectedWord || matchedPairs[ptTranslation]) return;
+
+        const correctPair = vocabData.find(item => item.en === selectedWord && item.pt === ptTranslation);
+        
+        if (correctPair) {
+          setMatchedPairs(prev => ({ ...prev, [ptTranslation]: selectedWord }));
+          setSelectedWord(null); 
+        } else {
+          setSelectedWord(null); 
+        }
+      };
+
+      // --- STATE: LISTENING EXERCISES ---
+      const [act1Answers, setAct1Answers] = useState({ q1: '', q2: '', q3: '', q4: '', q5: '', q6: '', q7: '', q8: '', q9: '' });
+      const [act2Answers, setAct2Answers] = useState({ l1: '', l2: '', l3: '', l4: '', l5: '' });
+      const [act3Answers, setAct3Answers] = useState({ c1: '', c2: '', c3: '', c4: '' });
+      const [showListeningResults, setShowListeningResults] = useState(false);
+
+      const act1Keys = { q1: 'fire', q2: 'desire', q3: 'way', q4: 'worlds', q5: 'heart', q6: 'why', q7: 'heartache', q8: 'mistake', q9: 'say' };
+      const act2Keys = { l1: '3', l2: '1', l3: '4', l4: '5', l5: '2' };
+      const act3Keys = { c1: ['nothin', 'nothing', "nothin'"], c2: ['mistake'], c3: ['hear'], c4: ['way'] };
+
+      const act2Lines = [
+        { id: 'l1', text: "Tell me why" },
+        { id: 'l2', text: "You are my fire" },
+        { id: 'l3', text: "Ain't nothin' but a heartache" },
+        { id: 'l4', text: "I want it that way" },
+        { id: 'l5', text: "The one desire" }
+      ];
+
+      const handleAct1Change = (q, val) => setAct1Answers(prev => ({ ...prev, [q]: val }));
+      const handleAct2Change = (q, val) => setAct2Answers(prev => ({ ...prev, [q]: val }));
+      const handleAct3Change = (q, val) => setAct3Answers(prev => ({ ...prev, [q]: val }));
+
+      const checkAct1 = (q) => act1Answers[q].toLowerCase().trim() === act1Keys[q];
+      const checkAct2 = (l) => act2Answers[l] === act2Keys[l];
+      const checkAct3 = (c) => act3Keys[c].includes(act3Answers[c].toLowerCase().trim().replace(/[']/g, ''));
+
+      // --- AUDIO TTS FOR SPEAKING ---
+      const [speakingId, setSpeakingId] = useState(null);
+      const playAudio = (id, text) => {
+        if (!('speechSynthesis' in window)) return;
+        window.speechSynthesis.cancel();
+        if (speakingId === id) {
+          setSpeakingId(null);
+          return;
+        }
+        const utterance = new SpeechSynthesisUtterance(text);
+        utterance.lang = 'en-US';
+        utterance.rate = 0.8; 
+        utterance.onend = () => setSpeakingId(null);
+        utterance.onerror = () => setSpeakingId(null);
+        setSpeakingId(id);
+        window.speechSynthesis.speak(utterance);
+      };
+
+      // TABS NAVIGATION
+      const tabs = [
+        { id: 'warm-up', label: 'Warm-up', icon: Coffee },
+        { id: 'vocab', label: 'Vocabulário', icon: BookOpen },
+        { id: 'listening', label: 'Listening', icon: Headphones },
+        { id: 'speaking', label: 'Speaking', icon: Mic }
+      ];
+
+      // FULL LYRICS DATA
+      const songLyrics = [
+        { id: 's1', label: 'Verse 1', text: "Yeah\nYou are my fire\nThe one desire\nBelieve when I say\nI want it that way" },
+        { id: 's2', label: 'Verse 2', text: "But we are two worlds apart\nCan't reach to your heart\nWhen you say\nThat I want it that way" },
+        { id: 's3', label: 'Chorus', text: "Tell me why\nAin't nothin' but a heartache\nTell me why\nAin't nothin' but a mistake\nTell me why\nI never wanna hear you say\nI want it that way" },
+        { id: 's4', label: 'Verse 3', text: "Am I your fire?\nYour one desire?\nYes, I know it's too late\nBut I want it that way" },
+        { id: 's5', label: 'Chorus', text: "Tell me why\nAin't nothin' but a heartache\nTell me why\nAin't nothin' but a mistake\nTell me why\nI never wanna hear you say\nI want it that way" },
+        { id: 's6', label: 'Bridge', text: "Now, I can see that we've fallen apart\nFrom the way that it used to be, yeah\nNo matter the distance\nI want you to know\nThat deep down inside of me" },
+        { id: 's7', label: 'Verse 4', text: "You are my fire\nThe one desire\nYou are (you are, you are, you are)\nDon't wanna hear you say, yeah" },
+        { id: 's8', label: 'Chorus (Variation)', text: "Ain't nothin' but a heartache\nAin't nothin' but a mistake (don't wanna hear you say)\nI never wanna hear you say (oh, yeah)\nI want it that way" },
+        { id: 's9', label: 'Chorus', text: "Tell me why\nAin't nothin' but a heartache\nTell me why\nAin't nothin' but a mistake\nTell me why\nI never wanna hear you say (don't wanna hear you say)\nI want it that way" },
+        { id: 's10', label: 'Outro', text: "Tell me why\nAin't nothin' but a heartache\nAin't nothin' but a mistake\nTell me why\nI never wanna hear you say (never wanna hear you say, yeah)\nI want it that way\n'Cause I want it that way" },
+      ];
+
+      return (
+        <div className="min-h-screen bg-[#eef5f9] font-sans text-[#0a2742] selection:bg-[#a8c4dc] selection:text-[#0a2742] pb-24 pt-16">
           
-          {/* --- TAB 1: WARM-UP --- */}
-          {activeTab === 'warm-up' && (
-            <div className="animate-in fade-in duration-500">
-              <h3 className="text-2xl font-serif font-bold text-[#0a2742] mb-6">1. Warm-up</h3>
-              <p className="text-[#0a2742]/80 mb-8 text-[17px]">
-                Answer the questions below to get started:
-              </p>
-              
-              <div className="space-y-4">
-                {[
-                  "Do you know the band Backstreet Boys?",
-                  "Do you like romantic pop songs? Why?",
-                  "What does \"I want it that way\" mean in your opinion?"
-                ].map((q, idx) => (
-                  <div key={idx} className="bg-[#f8f9fa] rounded-xl p-5 flex items-center gap-4">
-                    <MessageCircle className="text-[#a8c4dc] flex-shrink-0" size={24} fill="#eef5f9" />
-                    <p className="text-[17px] text-[#0a2742] font-serif">
-                      {q}
-                    </p>
-                  </div>
-                ))}
-              </div>
+          {/* HEADER */}
+          <div className="max-w-4xl mx-auto px-4 text-center mb-10">
+            <h1 className="text-2xl md:text-3xl text-[#0a2742] font-serif font-bold mb-4 opacity-90">
+              Trilha da fluência - Music class
+            </h1>
+            <div className="flex items-center justify-center gap-4 flex-wrap">
+              <h2 className="text-[#a61e00] font-bold text-lg md:text-xl">
+                I Want It That Way by Backstreet Boys
+              </h2>
+              <span className="bg-[#0a2742] text-white text-xs font-bold px-3 py-1 rounded-full">
+                Level: A1
+              </span>
             </div>
-          )}
+          </div>
 
-          {/* --- TAB 2: VOCABULARY MATCHING --- */}
-          {activeTab === 'vocab' && (
-            <div className="animate-in fade-in duration-500">
-              <h3 className="text-2xl font-serif font-bold text-[#0a2742] mb-6">2. Vocabulary - Relacionar as Colunas</h3>
-              <p className="text-[#0a2742]/80 mb-10 text-[17px]">
-                Clique numa palavra azul à esquerda e depois clique na caixa vazia à direita correspondente à sua tradução.
-              </p>
+          {/* TABS COMPONENT */}
+          <div className="max-w-4xl mx-auto px-4 mb-8">
+            <div className="flex items-center gap-6 border-b border-[#a8c4dc]/50 overflow-x-auto hide-scrollbar">
+              {tabs.map(tab => {
+                const Icon = tab.icon;
+                const isActive = activeTab === tab.id;
+                return (
+                  <button
+                    key={tab.id}
+                    onClick={() => setActiveTab(tab.id)}
+                    className={`flex items-center gap-2 pb-3 px-2 font-bold transition-all relative whitespace-nowrap text-sm md:text-base ${
+                      isActive 
+                        ? 'text-[#0a2742]' 
+                        : 'text-[#0a2742]/50 hover:text-[#0a2742]/80'
+                    }`}
+                  >
+                    <Icon size={18} className={isActive ? 'text-[#0a2742]' : ''} />
+                    {tab.label}
+                    {isActive && (
+                      <div className="absolute bottom-0 left-0 w-full h-[3px] bg-[#e2b07e]"></div>
+                    )}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
-                
-                {/* Left Column (English Words) */}
-                <div className="border border-dashed border-[#a8c4dc] rounded-2xl p-6 bg-[#f8f9fa] flex flex-col gap-4">
-                  {shuffledEnWords.map((word, idx) => {
-                    const isMatched = Object.values(matchedPairs).includes(word);
-                    const isSelected = selectedWord === word;
-                    
-                    if (isMatched) {
-                      return (
-                        <div key={idx} className="bg-gray-100 text-gray-400 font-bold py-4 px-6 rounded-xl text-center border border-gray-200 cursor-not-allowed">
-                          {word}
-                        </div>
-                      );
-                    }
-
-                    return (
-                      <button
-                        key={idx}
-                        onClick={() => handleEnWordClick(word)}
-                        className={`font-bold py-4 px-6 rounded-xl text-center transition-all ${
-                          isSelected 
-                            ? 'bg-[#12395d] text-white shadow-md ring-2 ring-offset-2 ring-[#0a2742]' 
-                            : 'bg-[#0a2742] text-white hover:bg-[#12395d]'
-                        }`}
-                      >
-                        {word}
-                      </button>
-                    );
-                  })}
-                </div>
-
-                {/* Right Column (Portuguese Translations) */}
-                <div className="flex flex-col gap-4 py-2">
-                  {vocabData.map((item, idx) => {
-                    const matchedWord = matchedPairs[item.pt];
-                    
-                    return (
-                      <div key={idx} className="flex items-center gap-5 border border-transparent hover:border-[#a8c4dc]/30 p-2 rounded-xl transition-all">
-                        <button
-                          onClick={() => handlePtBoxClick(item.pt)}
-                          disabled={!!matchedWord}
-                          className={`w-32 h-12 rounded-lg flex items-center justify-center font-bold text-[15px] transition-all ${
-                            matchedWord 
-                              ? 'bg-transparent text-[#0a2742] border-none' 
-                              : selectedWord 
-                                ? 'border-2 border-dashed border-[#e2b07e] bg-[#eef5f9] cursor-pointer' 
-                                : 'border-2 border-dashed border-[#e2b07e] bg-transparent cursor-default'
-                          }`}
-                        >
-                          {matchedWord || ''}
-                        </button>
-                        <span className="font-bold text-[#0a2742] text-[17px] flex-1">
-                          {item.pt}
-                        </span>
-                        
-                        {matchedWord && (
-                          <Check className="text-[#20744c]" size={22} />
-                        )}
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
+          {/* CONTENT AREA */}
+          <div className="max-w-4xl mx-auto px-4">
+            <div className="bg-white rounded-xl border-t-[6px] border-[#e2b07e] p-8 md:p-12 shadow-[0_4px_20px_-5px_rgba(10,39,66,0.05)]">
               
-              {Object.keys(matchedPairs).length === vocabData.length && (
-                <div className="mt-10 p-4 bg-[#eefaf4] text-[#20744c] rounded-xl border border-[#20744c]/20 text-center font-bold animate-in zoom-in">
-                  🎉 Excelente! Completou todo o vocabulário.
+              {/* --- TAB 1: WARM-UP --- */}
+              {activeTab === 'warm-up' && (
+                <div className="animate-in fade-in duration-500">
+                  <h3 className="text-2xl font-serif font-bold text-[#0a2742] mb-6">1. Warm-up</h3>
+                  <p className="text-[#0a2742]/80 mb-8 text-[17px]">
+                    Answer the questions below to get started:
+                  </p>
+                  
+                  <div className="space-y-4">
+                    {[
+                      "Do you know the band Backstreet Boys?",
+                      "Do you like romantic pop songs? Why?",
+                      "What does \"I want it that way\" mean in your opinion?"
+                    ].map((q, idx) => (
+                      <div key={idx} className="bg-[#f8f9fa] rounded-xl p-5 flex items-center gap-4">
+                        <MessageCircle className="text-[#a8c4dc] flex-shrink-0" size={24} fill="#eef5f9" />
+                        <p className="text-[17px] text-[#0a2742] font-serif">
+                          {q}
+                        </p>
+                      </div>
+                    ))}
+                  </div>
                 </div>
               )}
-            </div>
-          )}
 
-          {/* --- TAB 3: LISTENING --- */}
-          {activeTab === 'listening' && (
-            <div className="animate-in fade-in duration-500">
-              <h3 className="text-2xl font-serif font-bold text-[#0a2742] mb-6">3. Listening Comprehension</h3>
-              
-              <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-                
-                {/* Left Column: Video (Sticky) */}
-                <div className="lg:col-span-5 lg:sticky lg:top-8">
-                  <div className="aspect-video w-full rounded-2xl overflow-hidden shadow-lg border border-[#a8c4dc]/20 bg-black">
-                    <iframe 
-                      width="100%" 
-                      height="100%" 
-                      src="https://www.youtube.com/embed/4fndeDfaWCg" 
-                      title="Backstreet Boys - I Want It That Way" 
-                      frameBorder="0" 
-                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
-                      allowFullScreen
-                    ></iframe>
-                  </div>
-                  <p className="text-[#0a2742]/70 mt-4 text-[15px] italic text-center">
-                    Use o vídeo para ouvir a música e resolver os exercícios ao lado.
-                  </p>
-                </div>
-
-                {/* Right Column: Exercises */}
-                <div className="lg:col-span-7 space-y-8">
-                  
-                  {/* Activity 1 */}
-                  <div className="bg-[#f8f9fa] rounded-2xl p-6 md:p-8 border border-[#a8c4dc]/30">
-                    <h4 className="font-bold text-[#b88a4d] text-lg mb-2">🎧 Activity 1 – Listen to the song and complete the lyrics:</h4>
-                    
-                    <div className="space-y-6 font-serif text-[18px] md:text-[20px] text-[#0a2742] leading-[1.8] mt-6">
-                      <div>
-                        You are my <input type="text" value={act1Answers.q1} onChange={e => handleAct1Change('q1', e.target.value)} className={`w-24 text-center border-b-2 bg-transparent focus:outline-none font-bold transition-colors ${showListeningResults ? (checkAct1('q1') ? 'border-[#20744c] text-[#20744c]' : 'border-[#a61e00] text-[#a61e00]') : 'border-[#b88a4d] focus:border-[#0a2742]'}`} /> <br/>
-                        The one <input type="text" value={act1Answers.q2} onChange={e => handleAct1Change('q2', e.target.value)} className={`w-24 text-center border-b-2 bg-transparent focus:outline-none font-bold transition-colors ${showListeningResults ? (checkAct1('q2') ? 'border-[#20744c] text-[#20744c]' : 'border-[#a61e00] text-[#a61e00]') : 'border-[#b88a4d] focus:border-[#0a2742]'}`} /> <br/>
-                        Believe when I say <br/>
-                        I want it that <input type="text" value={act1Answers.q3} onChange={e => handleAct1Change('q3', e.target.value)} className={`w-24 text-center border-b-2 bg-transparent focus:outline-none font-bold transition-colors ${showListeningResults ? (checkAct1('q3') ? 'border-[#20744c] text-[#20744c]' : 'border-[#a61e00] text-[#a61e00]') : 'border-[#b88a4d] focus:border-[#0a2742]'}`} />
-                      </div>
-
-                      <div className="pt-2 border-t border-[#a8c4dc]/20">
-                        But we are two <input type="text" value={act1Answers.q4} onChange={e => handleAct1Change('q4', e.target.value)} className={`w-24 text-center border-b-2 bg-transparent focus:outline-none font-bold transition-colors ${showListeningResults ? (checkAct1('q4') ? 'border-[#20744c] text-[#20744c]' : 'border-[#a61e00] text-[#a61e00]') : 'border-[#b88a4d] focus:border-[#0a2742]'}`} /> apart <br/>
-                        Can't reach to your <input type="text" value={act1Answers.q5} onChange={e => handleAct1Change('q5', e.target.value)} className={`w-24 text-center border-b-2 bg-transparent focus:outline-none font-bold transition-colors ${showListeningResults ? (checkAct1('q5') ? 'border-[#20744c] text-[#20744c]' : 'border-[#a61e00] text-[#a61e00]') : 'border-[#b88a4d] focus:border-[#0a2742]'}`} /> <br/>
-                        When you say <br/>
-                        That I want it that way
-                      </div>
-
-                      <div className="pt-2 border-t border-[#a8c4dc]/20">
-                        Tell me <input type="text" value={act1Answers.q6} onChange={e => handleAct1Change('q6', e.target.value)} className={`w-24 text-center border-b-2 bg-transparent focus:outline-none font-bold transition-colors ${showListeningResults ? (checkAct1('q6') ? 'border-[#20744c] text-[#20744c]' : 'border-[#a61e00] text-[#a61e00]') : 'border-[#b88a4d] focus:border-[#0a2742]'}`} /> <br/>
-                        Ain't nothin' but a <input type="text" value={act1Answers.q7} onChange={e => handleAct1Change('q7', e.target.value)} className={`w-32 text-center border-b-2 bg-transparent focus:outline-none font-bold transition-colors ${showListeningResults ? (checkAct1('q7') ? 'border-[#20744c] text-[#20744c]' : 'border-[#a61e00] text-[#a61e00]') : 'border-[#b88a4d] focus:border-[#0a2742]'}`} /> <br/>
-                        Tell me why <br/>
-                        Ain't nothin' but a <input type="text" value={act1Answers.q8} onChange={e => handleAct1Change('q8', e.target.value)} className={`w-28 text-center border-b-2 bg-transparent focus:outline-none font-bold transition-colors ${showListeningResults ? (checkAct1('q8') ? 'border-[#20744c] text-[#20744c]' : 'border-[#a61e00] text-[#a61e00]') : 'border-[#b88a4d] focus:border-[#0a2742]'}`} /> <br/>
-                        Tell me why <br/>
-                        I never wanna hear you <input type="text" value={act1Answers.q9} onChange={e => handleAct1Change('q9', e.target.value)} className={`w-20 text-center border-b-2 bg-transparent focus:outline-none font-bold transition-colors ${showListeningResults ? (checkAct1('q9') ? 'border-[#20744c] text-[#20744c]' : 'border-[#a61e00] text-[#a61e00]') : 'border-[#b88a4d] focus:border-[#0a2742]'}`} /> <br/>
-                        I want it that way
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Activity 2 */}
-                  <div className="bg-[#f8f9fa] rounded-2xl p-6 md:p-8 border border-[#a8c4dc]/30">
-                    <h4 className="font-bold text-[#b88a4d] text-lg mb-2">🔀 Activity 2 – Put the verses in order</h4>
-                    <p className="text-[#0a2742]/70 mb-6 text-[16px]">
-                      👉 Number the sentences in the correct order (1–5):
-                    </p>
-
-                    <div className="space-y-3 font-serif text-[18px] md:text-[20px] text-[#0a2742]">
-                      {act2Lines.map((line) => (
-                        <div key={line.id} className="flex items-center gap-4 bg-white p-3 rounded-xl border border-[#a8c4dc]/20 shadow-sm">
-                          <select 
-                            value={act2Answers[line.id]} 
-                            onChange={(e) => handleAct2Change(line.id, e.target.value)}
-                            className={`w-14 h-10 text-center font-bold bg-[#f4f8fb] border-2 rounded-lg focus:outline-none transition-colors ${showListeningResults ? (checkAct2(line.id) ? 'border-[#20744c] text-[#20744c]' : 'border-[#a61e00] text-[#a61e00]') : 'border-[#a8c4dc]/50 focus:border-[#0a2742]'}`}
-                          >
-                            <option value=""></option>
-                            <option value="1">1</option>
-                            <option value="2">2</option>
-                            <option value="3">3</option>
-                            <option value="4">4</option>
-                            <option value="5">5</option>
-                          </select>
-                          <span>{line.text}</span>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* Activity 3 */}
-                  <div className="bg-[#f8f9fa] rounded-2xl p-6 md:p-8 border border-[#a8c4dc]/30">
-                    <h4 className="font-bold text-[#b88a4d] text-lg mb-2">✍️ Activity 3 – Complete with missing words (Chorus)</h4>
-                    <p className="text-[#0a2742]/70 mb-6 text-[16px]">👉 Complete:</p>
-
-                    <div className="space-y-2 font-serif text-[18px] md:text-[20px] text-[#0a2742] leading-[1.8]">
-                      Tell me why <br/>
-                      Ain't <input type="text" value={act3Answers.c1} onChange={e => handleAct3Change('c1', e.target.value)} className={`w-28 text-center border-b-2 bg-transparent focus:outline-none font-bold transition-colors ${showListeningResults ? (checkAct3('c1') ? 'border-[#20744c] text-[#20744c]' : 'border-[#a61e00] text-[#a61e00]') : 'border-[#b88a4d] focus:border-[#0a2742]'}`} /> but a heartache <br/>
-                      Tell me why <br/>
-                      Ain't nothin' but a <input type="text" value={act3Answers.c2} onChange={e => handleAct3Change('c2', e.target.value)} className={`w-28 text-center border-b-2 bg-transparent focus:outline-none font-bold transition-colors ${showListeningResults ? (checkAct3('c2') ? 'border-[#20744c] text-[#20744c]' : 'border-[#a61e00] text-[#a61e00]') : 'border-[#b88a4d] focus:border-[#0a2742]'}`} /> <br/>
-                      Tell me why <br/>
-                      I never wanna <input type="text" value={act3Answers.c3} onChange={e => handleAct3Change('c3', e.target.value)} className={`w-24 text-center border-b-2 bg-transparent focus:outline-none font-bold transition-colors ${showListeningResults ? (checkAct3('c3') ? 'border-[#20744c] text-[#20744c]' : 'border-[#a61e00] text-[#a61e00]') : 'border-[#b88a4d] focus:border-[#0a2742]'}`} /> you say <br/>
-                      I want it that <input type="text" value={act3Answers.c4} onChange={e => handleAct3Change('c4', e.target.value)} className={`w-24 text-center border-b-2 bg-transparent focus:outline-none font-bold transition-colors ${showListeningResults ? (checkAct3('c4') ? 'border-[#20744c] text-[#20744c]' : 'border-[#a61e00] text-[#a61e00]') : 'border-[#b88a4d] focus:border-[#0a2742]'}`} />
-                    </div>
-                  </div>
-
-                  <div className="pt-4">
-                    <button 
-                      onClick={() => setShowListeningResults(true)}
-                      className="bg-[#0a2742] hover:bg-[#12395d] text-white px-8 py-3.5 rounded-xl font-bold transition-all flex items-center justify-center gap-3 shadow-md hover:shadow-lg w-full md:w-auto"
-                    >
-                      <Check size={20} /> Check All Answers
-                    </button>
-                  </div>
-
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* --- TAB 4: SPEAKING --- */}
-          {activeTab === 'speaking' && (
-            <div className="animate-in fade-in duration-500">
-              <h3 className="text-2xl font-serif font-bold text-[#0a2742] mb-6">4. Read out loud & Speaking</h3>
-              
-              <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-                
-                {/* Left Column: Video (Sticky) */}
-                <div className="lg:col-span-5 lg:sticky lg:top-8">
-                  <div className="aspect-video w-full rounded-2xl overflow-hidden shadow-lg border border-[#a8c4dc]/20 bg-black">
-                    <iframe 
-                      width="100%" 
-                      height="100%" 
-                      src="https://www.youtube.com/embed/4fndeDfaWCg" 
-                      title="Backstreet Boys - I Want It That Way" 
-                      frameBorder="0" 
-                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
-                      allowFullScreen
-                    ></iframe>
-                  </div>
-                  <p className="text-[#0a2742]/70 mt-4 text-[15px] italic text-center">
-                    Acompanhe o vídeo para praticar o ritmo e a pronúncia cantando junto.
-                  </p>
-                </div>
-
-                {/* Right Column: Lyrics */}
-                <div className="lg:col-span-7">
+              {/* --- TAB 2: VOCABULARY MATCHING --- */}
+              {activeTab === 'vocab' && (
+                <div className="animate-in fade-in duration-500">
+                  <h3 className="text-2xl font-serif font-bold text-[#0a2742] mb-6">2. Vocabulary - Relacionar as Colunas</h3>
                   <p className="text-[#0a2742]/80 mb-10 text-[17px]">
-                    Pratique a sua pronúncia lendo a letra completa da música abaixo em voz alta.
+                    Clique numa palavra azul à esquerda e depois clique na caixa vazia à direita correspondente à sua tradução.
                   </p>
 
-                  <div className="border-l-[4px] border-[#0a2742] pl-8 py-2 space-y-10 relative ml-2">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
                     
-                    {songLyrics.map((item) => {
-                      const isChorus = item.label.includes('Chorus');
-                      return (
-                        <div key={item.id} className={`group relative ${isChorus ? 'bg-[#f4f8fb] border border-[#a8c4dc]/30 shadow-inner' : 'bg-white hover:bg-[#fcfcfc]'} p-6 md:p-8 -ml-6 rounded-2xl transition-colors`}>
-                          <button 
-                            onClick={() => playAudio(item.id, item.text.replace(/\n/g, '. '))} 
-                            className={`absolute -left-[54px] top-6 p-2.5 bg-white rounded-full ${isChorus ? 'text-[#b88a4d] hover:text-[#a61e00] border border-[#b88a4d]/50' : 'text-[#a8c4dc] hover:text-[#0a2742] border border-[#a8c4dc]/40'} transition-all shadow-sm opacity-0 group-hover:opacity-100 z-10`}
-                          >
-                            {isChorus 
-                              ? <Play size={18} className={speakingId === item.id ? 'animate-pulse text-[#a61e00]' : ''} fill="currentColor" /> 
-                              : <Volume2 size={18} className={speakingId === item.id ? 'animate-pulse text-[#0a2742]' : ''} />
-                            }
-                          </button>
-                          <span className={`text-xs font-bold uppercase tracking-widest ${isChorus ? 'text-[#b88a4d]' : 'text-[#a8c4dc]'} mb-4 block`}>
-                            {item.label}
-                          </span>
-                          <p className={`font-serif text-[20px] md:text-[22px] text-[#0a2742] leading-[1.8] ${isChorus ? 'font-bold' : ''}`}>
-                            {item.text.split('\n').map((line, i) => (
-                              <React.Fragment key={i}>
-                                {line}<br/>
-                              </React.Fragment>
-                            ))}
-                          </p>
-                        </div>
-                      );
-                    })}
+                    {/* Left Column (English Words) */}
+                    <div className="border border-dashed border-[#a8c4dc] rounded-2xl p-6 bg-[#f8f9fa] flex flex-col gap-4">
+                      {shuffledEnWords.map((word, idx) => {
+                        const isMatched = Object.values(matchedPairs).includes(word);
+                        const isSelected = selectedWord === word;
+                        
+                        if (isMatched) {
+                          return (
+                            <div key={idx} className="bg-gray-100 text-gray-400 font-bold py-4 px-6 rounded-xl text-center border border-gray-200 cursor-not-allowed">
+                              {word}
+                            </div>
+                          );
+                        }
 
+                        return (
+                          <button
+                            key={idx}
+                            onClick={() => handleEnWordClick(word)}
+                            className={`font-bold py-4 px-6 rounded-xl text-center transition-all ${
+                              isSelected 
+                                ? 'bg-[#12395d] text-white shadow-md ring-2 ring-offset-2 ring-[#0a2742]' 
+                                : 'bg-[#0a2742] text-white hover:bg-[#12395d]'
+                            }`}
+                          >
+                            {word}
+                          </button>
+                        );
+                      })}
+                    </div>
+
+                    {/* Right Column (Portuguese Translations) */}
+                    <div className="flex flex-col gap-4 py-2">
+                      {vocabData.map((item, idx) => {
+                        const matchedWord = matchedPairs[item.pt];
+                        
+                        return (
+                          <div key={idx} className="flex items-center gap-5 border border-transparent hover:border-[#a8c4dc]/30 p-2 rounded-xl transition-all">
+                            <button
+                              onClick={() => handlePtBoxClick(item.pt)}
+                              disabled={!!matchedWord}
+                              className={`w-32 h-12 rounded-lg flex items-center justify-center font-bold text-[15px] transition-all ${
+                                matchedWord 
+                                  ? 'bg-transparent text-[#0a2742] border-none' 
+                                  : selectedWord 
+                                    ? 'border-2 border-dashed border-[#e2b07e] bg-[#eef5f9] cursor-pointer' 
+                                    : 'border-2 border-dashed border-[#e2b07e] bg-transparent cursor-default'
+                              }`}
+                            >
+                              {matchedWord || ''}
+                            </button>
+                            <span className="font-bold text-[#0a2742] text-[17px] flex-1">
+                              {item.pt}
+                            </span>
+                            
+                            {matchedWord && (
+                              <Check className="text-[#20744c]" size={22} />
+                            )}
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                  
+                  {Object.keys(matchedPairs).length === vocabData.length && (
+                    <div className="mt-10 p-4 bg-[#eefaf4] text-[#20744c] rounded-xl border border-[#20744c]/20 text-center font-bold animate-in zoom-in">
+                      🎉 Excelente! Completou todo o vocabulário.
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* --- TAB 3: LISTENING --- */}
+              {activeTab === 'listening' && (
+                <div className="animate-in fade-in duration-500">
+                  <h3 className="text-2xl font-serif font-bold text-[#0a2742] mb-6">3. Listening Comprehension</h3>
+                  
+                  <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+                    
+                    {/* Left Column: Video (Sticky) */}
+                    <div className="lg:col-span-5 lg:sticky lg:top-8">
+                      <div className="aspect-video w-full rounded-2xl overflow-hidden shadow-lg border border-[#a8c4dc]/20 bg-black">
+                        <iframe 
+                          width="100%" 
+                          height="100%" 
+                          src="https://www.youtube.com/embed/4fndeDfaWCg" 
+                          title="Backstreet Boys - I Want It That Way" 
+                          frameBorder="0" 
+                          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                          allowFullScreen
+                        ></iframe>
+                      </div>
+                      <p className="text-[#0a2742]/70 mt-4 text-[15px] italic text-center">
+                        Use o vídeo para ouvir a música e resolver os exercícios ao lado.
+                      </p>
+                    </div>
+
+                    {/* Right Column: Exercises */}
+                    <div className="lg:col-span-7 space-y-8">
+                      
+                      {/* Activity 1 */}
+                      <div className="bg-[#f8f9fa] rounded-2xl p-6 md:p-8 border border-[#a8c4dc]/30">
+                        <h4 className="font-bold text-[#b88a4d] text-lg mb-2">🎧 Activity 1 – Listen to the song and complete the lyrics:</h4>
+                        
+                        <div className="space-y-6 font-serif text-[18px] md:text-[20px] text-[#0a2742] leading-[1.8] mt-6">
+                          <div>
+                            You are my <input type="text" value={act1Answers.q1} onChange={e => handleAct1Change('q1', e.target.value)} className={`w-24 text-center border-b-2 bg-transparent focus:outline-none font-bold transition-colors ${showListeningResults ? (checkAct1('q1') ? 'border-[#20744c] text-[#20744c]' : 'border-[#a61e00] text-[#a61e00]') : 'border-[#b88a4d] focus:border-[#0a2742]'}`} /> <br/>
+                            The one <input type="text" value={act1Answers.q2} onChange={e => handleAct1Change('q2', e.target.value)} className={`w-24 text-center border-b-2 bg-transparent focus:outline-none font-bold transition-colors ${showListeningResults ? (checkAct1('q2') ? 'border-[#20744c] text-[#20744c]' : 'border-[#a61e00] text-[#a61e00]') : 'border-[#b88a4d] focus:border-[#0a2742]'}`} /> <br/>
+                            Believe when I say <br/>
+                            I want it that <input type="text" value={act1Answers.q3} onChange={e => handleAct1Change('q3', e.target.value)} className={`w-24 text-center border-b-2 bg-transparent focus:outline-none font-bold transition-colors ${showListeningResults ? (checkAct1('q3') ? 'border-[#20744c] text-[#20744c]' : 'border-[#a61e00] text-[#a61e00]') : 'border-[#b88a4d] focus:border-[#0a2742]'}`} />
+                          </div>
+
+                          <div className="pt-2 border-t border-[#a8c4dc]/20">
+                            But we are two <input type="text" value={act1Answers.q4} onChange={e => handleAct1Change('q4', e.target.value)} className={`w-24 text-center border-b-2 bg-transparent focus:outline-none font-bold transition-colors ${showListeningResults ? (checkAct1('q4') ? 'border-[#20744c] text-[#20744c]' : 'border-[#a61e00] text-[#a61e00]') : 'border-[#b88a4d] focus:border-[#0a2742]'}`} /> apart <br/>
+                            Can't reach to your <input type="text" value={act1Answers.q5} onChange={e => handleAct1Change('q5', e.target.value)} className={`w-24 text-center border-b-2 bg-transparent focus:outline-none font-bold transition-colors ${showListeningResults ? (checkAct1('q5') ? 'border-[#20744c] text-[#20744c]' : 'border-[#a61e00] text-[#a61e00]') : 'border-[#b88a4d] focus:border-[#0a2742]'}`} /> <br/>
+                            When you say <br/>
+                            That I want it that way
+                          </div>
+
+                          <div className="pt-2 border-t border-[#a8c4dc]/20">
+                            Tell me <input type="text" value={act1Answers.q6} onChange={e => handleAct1Change('q6', e.target.value)} className={`w-24 text-center border-b-2 bg-transparent focus:outline-none font-bold transition-colors ${showListeningResults ? (checkAct1('q6') ? 'border-[#20744c] text-[#20744c]' : 'border-[#a61e00] text-[#a61e00]') : 'border-[#b88a4d] focus:border-[#0a2742]'}`} /> <br/>
+                            Ain't nothin' but a <input type="text" value={act1Answers.q7} onChange={e => handleAct1Change('q7', e.target.value)} className={`w-32 text-center border-b-2 bg-transparent focus:outline-none font-bold transition-colors ${showListeningResults ? (checkAct1('q7') ? 'border-[#20744c] text-[#20744c]' : 'border-[#a61e00] text-[#a61e00]') : 'border-[#b88a4d] focus:border-[#0a2742]'}`} /> <br/>
+                            Tell me why <br/>
+                            Ain't nothin' but a <input type="text" value={act1Answers.q8} onChange={e => handleAct1Change('q8', e.target.value)} className={`w-28 text-center border-b-2 bg-transparent focus:outline-none font-bold transition-colors ${showListeningResults ? (checkAct1('q8') ? 'border-[#20744c] text-[#20744c]' : 'border-[#a61e00] text-[#a61e00]') : 'border-[#b88a4d] focus:border-[#0a2742]'}`} /> <br/>
+                            Tell me why <br/>
+                            I never wanna hear you <input type="text" value={act1Answers.q9} onChange={e => handleAct1Change('q9', e.target.value)} className={`w-20 text-center border-b-2 bg-transparent focus:outline-none font-bold transition-colors ${showListeningResults ? (checkAct1('q9') ? 'border-[#20744c] text-[#20744c]' : 'border-[#a61e00] text-[#a61e00]') : 'border-[#b88a4d] focus:border-[#0a2742]'}`} /> <br/>
+                            I want it that way
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Activity 2 */}
+                      <div className="bg-[#f8f9fa] rounded-2xl p-6 md:p-8 border border-[#a8c4dc]/30">
+                        <h4 className="font-bold text-[#b88a4d] text-lg mb-2">🔀 Activity 2 – Put the verses in order</h4>
+                        <p className="text-[#0a2742]/70 mb-6 text-[16px]">
+                          👉 Number the sentences in the correct order (1–5):
+                        </p>
+
+                        <div className="space-y-3 font-serif text-[18px] md:text-[20px] text-[#0a2742]">
+                          {act2Lines.map((line) => (
+                            <div key={line.id} className="flex items-center gap-4 bg-white p-3 rounded-xl border border-[#a8c4dc]/20 shadow-sm">
+                              <select 
+                                value={act2Answers[line.id]} 
+                                onChange={(e) => handleAct2Change(line.id, e.target.value)}
+                                className={`w-14 h-10 text-center font-bold bg-[#f4f8fb] border-2 rounded-lg focus:outline-none transition-colors ${showListeningResults ? (checkAct2(line.id) ? 'border-[#20744c] text-[#20744c]' : 'border-[#a61e00] text-[#a61e00]') : 'border-[#a8c4dc]/50 focus:border-[#0a2742]'}`}
+                              >
+                                <option value=""></option>
+                                <option value="1">1</option>
+                                <option value="2">2</option>
+                                <option value="3">3</option>
+                                <option value="4">4</option>
+                                <option value="5">5</option>
+                              </select>
+                              <span>{line.text}</span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+
+                      {/* Activity 3 */}
+                      <div className="bg-[#f8f9fa] rounded-2xl p-6 md:p-8 border border-[#a8c4dc]/30">
+                        <h4 className="font-bold text-[#b88a4d] text-lg mb-2">✍️ Activity 3 – Complete with missing words (Chorus)</h4>
+                        <p className="text-[#0a2742]/70 mb-6 text-[16px]">👉 Complete:</p>
+
+                        <div className="space-y-2 font-serif text-[18px] md:text-[20px] text-[#0a2742] leading-[1.8]">
+                          Tell me why <br/>
+                          Ain't <input type="text" value={act3Answers.c1} onChange={e => handleAct3Change('c1', e.target.value)} className={`w-28 text-center border-b-2 bg-transparent focus:outline-none font-bold transition-colors ${showListeningResults ? (checkAct3('c1') ? 'border-[#20744c] text-[#20744c]' : 'border-[#a61e00] text-[#a61e00]') : 'border-[#b88a4d] focus:border-[#0a2742]'}`} /> but a heartache <br/>
+                          Tell me why <br/>
+                          Ain't nothin' but a <input type="text" value={act3Answers.c2} onChange={e => handleAct3Change('c2', e.target.value)} className={`w-28 text-center border-b-2 bg-transparent focus:outline-none font-bold transition-colors ${showListeningResults ? (checkAct3('c2') ? 'border-[#20744c] text-[#20744c]' : 'border-[#a61e00] text-[#a61e00]') : 'border-[#b88a4d] focus:border-[#0a2742]'}`} /> <br/>
+                          Tell me why <br/>
+                          I never wanna <input type="text" value={act3Answers.c3} onChange={e => handleAct3Change('c3', e.target.value)} className={`w-24 text-center border-b-2 bg-transparent focus:outline-none font-bold transition-colors ${showListeningResults ? (checkAct3('c3') ? 'border-[#20744c] text-[#20744c]' : 'border-[#a61e00] text-[#a61e00]') : 'border-[#b88a4d] focus:border-[#0a2742]'}`} /> you say <br/>
+                          I want it that <input type="text" value={act3Answers.c4} onChange={e => handleAct3Change('c4', e.target.value)} className={`w-24 text-center border-b-2 bg-transparent focus:outline-none font-bold transition-colors ${showListeningResults ? (checkAct3('c4') ? 'border-[#20744c] text-[#20744c]' : 'border-[#a61e00] text-[#a61e00]') : 'border-[#b88a4d] focus:border-[#0a2742]'}`} />
+                        </div>
+                      </div>
+
+                      <div className="pt-4">
+                        <button 
+                          onClick={() => setShowListeningResults(true)}
+                          className="bg-[#0a2742] hover:bg-[#12395d] text-white px-8 py-3.5 rounded-xl font-bold transition-all flex items-center justify-center gap-3 shadow-md hover:shadow-lg w-full md:w-auto"
+                        >
+                          <Check size={20} /> Check All Answers
+                        </button>
+                      </div>
+
+                    </div>
                   </div>
                 </div>
-              </div>
-            </div>
-          )}
+              )}
 
+              {/* --- TAB 4: SPEAKING --- */}
+              {activeTab === 'speaking' && (
+                <div className="animate-in fade-in duration-500">
+                  <h3 className="text-2xl font-serif font-bold text-[#0a2742] mb-6">4. Read out loud & Speaking</h3>
+                  
+                  <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+                    
+                    {/* Left Column: Video (Sticky) */}
+                    <div className="lg:col-span-5 lg:sticky lg:top-8">
+                      <div className="aspect-video w-full rounded-2xl overflow-hidden shadow-lg border border-[#a8c4dc]/20 bg-black">
+                        <iframe 
+                          width="100%" 
+                          height="100%" 
+                          src="https://www.youtube.com/embed/4fndeDfaWCg" 
+                          title="Backstreet Boys - I Want It That Way" 
+                          frameBorder="0" 
+                          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                          allowFullScreen
+                        ></iframe>
+                      </div>
+                      <p className="text-[#0a2742]/70 mt-4 text-[15px] italic text-center">
+                        Acompanhe o vídeo para praticar o ritmo e a pronúncia cantando junto.
+                      </p>
+                    </div>
+
+                    {/* Right Column: Lyrics */}
+                    <div className="lg:col-span-7">
+                      <p className="text-[#0a2742]/80 mb-10 text-[17px]">
+                        Pratique a sua pronúncia lendo a letra completa da música abaixo em voz alta.
+                      </p>
+
+                      <div className="border-l-[4px] border-[#0a2742] pl-8 py-2 space-y-10 relative ml-2">
+                        
+                        {songLyrics.map((item) => {
+                          const isChorus = item.label.includes('Chorus');
+                          return (
+                            <div key={item.id} className={`group relative ${isChorus ? 'bg-[#f4f8fb] border border-[#a8c4dc]/30 shadow-inner' : 'bg-white hover:bg-[#fcfcfc]'} p-6 md:p-8 -ml-6 rounded-2xl transition-colors`}>
+                              <button 
+                                onClick={() => playAudio(item.id, item.text.replace(/\n/g, '. '))} 
+                                className={`absolute -left-[54px] top-6 p-2.5 bg-white rounded-full ${isChorus ? 'text-[#b88a4d] hover:text-[#a61e00] border border-[#b88a4d]/50' : 'text-[#a8c4dc] hover:text-[#0a2742] border border-[#a8c4dc]/40'} transition-all shadow-sm opacity-0 group-hover:opacity-100 z-10`}
+                              >
+                                {isChorus 
+                                  ? <Play size={18} className={speakingId === item.id ? 'animate-pulse text-[#a61e00]' : ''} fill="currentColor" /> 
+                                  : <Volume2 size={18} className={speakingId === item.id ? 'animate-pulse text-[#0a2742]' : ''} />
+                                }
+                              </button>
+                              <span className={`text-xs font-bold uppercase tracking-widest ${isChorus ? 'text-[#b88a4d]' : 'text-[#a8c4dc]'} mb-4 block`}>
+                                {item.label}
+                              </span>
+                              <p className={`font-serif text-[20px] md:text-[22px] text-[#0a2742] leading-[1.8] ${isChorus ? 'font-bold' : ''}`}>
+                                {item.text.split('\n').map((line, i) => (
+                                  <React.Fragment key={i}>
+                                    {line}<br/>
+                                  </React.Fragment>
+                                ))}
+                              </p>
+                            </div>
+                          );
+                        })}
+
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+            </div>
+          </div>
         </div>
-      </div>
-    </div>
-  );
-}
+      );
+    }
+
+    const root = ReactDOM.createRoot(document.getElementById('root'));
+    root.render(<App />);
+  </script>
+</body>
+</html>
